@@ -25,6 +25,7 @@ export class Provider extends EventEmitter {
   }) {
     const promise = new Promise<{
       data: unknown;
+      executeFn?: (params: unknown[]) => Promise<unknown>;
       callback?: (data?: unknown, params?: unknown[]) => void;
     }>((resolve, reject) => {
       const mock = this.findMock(method, params);
@@ -44,11 +45,18 @@ export class Provider extends EventEmitter {
         if (mock.shouldThrow) {
           reject(mock.data);
         } else {
-          resolve({ data: mock.data, callback: mock.triggerCallback });
+          resolve({
+            data: mock.data,
+            executeFn: mock.executeFn,
+            callback: mock.triggerCallback,
+          });
         }
       }, mock.timeout || 0);
     });
-    const { data, callback } = await promise;
+    let { data, executeFn, callback } = await promise;
+    if (executeFn) {
+      data = await executeFn(params);
+    }
     if (callback) {
       callback(data, params);
     }
