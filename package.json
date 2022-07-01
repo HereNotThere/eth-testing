@@ -25,6 +25,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src",
+    "install": "npm run build",
     "test": "jest",
     "test:cover": "jest --coverage",
     "install:examples": "cd examples/react-apps && npm install",
